@@ -1,3 +1,15 @@
 {
-  "svelte.enable-ts-plugin": true
+  "svelte.enable-ts-plugin": true,
+  "cSpell.words": [
+    "debian",
+    "mariadb",
+    "nginx",
+    "passwordless",
+    "podman",
+    "serialisierbare",
+    "Spezifikations",
+    "splitn",
+    "taurigon",
+    "unlisten"
+  ]
 }
