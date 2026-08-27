@@ -28,11 +28,11 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 
 ## Step 2 – Komfort ⬜
 
-- ⬜ vHost-Management (mehrere PHP-Versionen parallel)
-- ⬜ SSL-Zertifikate via mkcert (One-Click)
-- ⬜ Datenbank-Wizard (DB + Benutzer + Rechte)
-- ⬜ Terminal-Ausbau (History, Quick-Commands, farbige Ausgabe)
-- ⬜ Erweiterte Einstellungen (Ports, Datenverzeichnis, Domain-Suffix)
+- ✅ Datenbank-Wizard (DB + User + Rechte)
+- ⬜ SSL-Zertifikate via mkcert
+- ⬜ Terminal-Politur
+- ⬜ Erweiterte Einstellungen
+- ⬜ Bessere Lösch-Dialoge
 
 ## Step 3 – Projekt-Templates ⬜
 

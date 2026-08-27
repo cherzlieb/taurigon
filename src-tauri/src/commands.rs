@@ -4,7 +4,9 @@
 //! Enthält nur dünne Wrapper; die Fachlogik liegt in den Modulen.
 
 use tauri::State;
+use tauri::AppHandle;
 
+use crate::database::{DatabaseManager, DbKind};
 use crate::engine::{create_engine, NETWORK_NAME};
 use crate::projects::model::Project;
 use crate::projects::ProjectManager;
@@ -14,7 +16,6 @@ use crate::state::AppState;
 use crate::system::inspector::SystemInfoDto;
 use crate::web::{catalog::PROXY_HTTP_PORT, WebManager};
 use crate::terminal::TerminalManager;
-use tauri::AppHandle;
 
 // ============================================================================
 //  System
@@ -362,4 +363,80 @@ pub fn cmd_terminal_close(
     session_id: String,
 ) -> Result<(), String> {
     terminal.close(&session_id)
+}
+
+// ============================================================================
+//  Datenbanken
+// ============================================================================
+
+/// Prüft, ob ein DB-Dienst läuft.
+#[tauri::command]
+pub async fn cmd_db_available(
+    state: State<'_, AppState>,
+    kind: String,
+) -> Result<bool, String> {
+    let db_kind = DbKind::from_id(&kind).ok_or_else(|| format!("Unbekannt: {kind}"))?;
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let mgr = DatabaseManager::new(engine.as_ref());
+    mgr.is_available(db_kind).await.map_err(|e| e.to_string())
+}
+
+/// Listet die Benutzer-Datenbanken eines Dienstes.
+#[tauri::command]
+pub async fn cmd_db_list(
+    state: State<'_, AppState>,
+    kind: String,
+) -> Result<Vec<crate::database::DatabaseInfo>, String> {
+    let db_kind = DbKind::from_id(&kind).ok_or_else(|| format!("Unbekannt: {kind}"))?;
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let mgr = DatabaseManager::new(engine.as_ref());
+    mgr.list(db_kind).await.map_err(|e| e.to_string())
+}
+
+/// Legt eine neue Datenbank an.
+#[tauri::command]
+pub async fn cmd_db_create(
+    state: State<'_, AppState>,
+    kind: String,
+    name: String,
+) -> Result<(), String> {
+    let db_kind = DbKind::from_id(&kind).ok_or_else(|| format!("Unbekannt: {kind}"))?;
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let mgr = DatabaseManager::new(engine.as_ref());
+    mgr.create_database(db_kind, &name).await.map_err(|e| e.to_string())
+}
+
+/// Löscht eine Datenbank.
+#[tauri::command]
+pub async fn cmd_db_drop(
+    state: State<'_, AppState>,
+    kind: String,
+    name: String,
+) -> Result<(), String> {
+    let db_kind = DbKind::from_id(&kind).ok_or_else(|| format!("Unbekannt: {kind}"))?;
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let mgr = DatabaseManager::new(engine.as_ref());
+    mgr.drop_database(db_kind, &name).await.map_err(|e| e.to_string())
+}
+
+/// Legt einen Benutzer an und gewährt Rechte auf eine Datenbank.
+#[tauri::command]
+pub async fn cmd_db_create_user(
+    state: State<'_, AppState>,
+    kind: String,
+    database: String,
+    user: String,
+    password: String,
+) -> Result<(), String> {
+    let db_kind = DbKind::from_id(&kind).ok_or_else(|| format!("Unbekannt: {kind}"))?;
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let mgr = DatabaseManager::new(engine.as_ref());
+    mgr.create_user(db_kind, &database, &user, &password)
+        .await
+        .map_err(|e| e.to_string())
 }

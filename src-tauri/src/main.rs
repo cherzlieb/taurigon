@@ -3,6 +3,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod commands;
+mod database;
 mod db;
 mod engine;
 mod projects;
@@ -50,6 +51,11 @@ fn main() {
             commands::cmd_terminal_write,
             commands::cmd_terminal_resize,
             commands::cmd_terminal_close,
+            commands::cmd_db_available,
+            commands::cmd_db_list,
+            commands::cmd_db_create,
+            commands::cmd_db_drop,
+            commands::cmd_db_create_user,
         ])
         .run(tauri::generate_context!())
         .expect("Fataler Fehler beim Starten von Taurigon");
