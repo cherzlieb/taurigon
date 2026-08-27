@@ -72,7 +72,7 @@ eine aufgeräumte grafische Oberfläche.
 
 ```bash
 # Repository klonen
-git clone https://github.com/<user>/taurigon.git
+git clone https://github.com/cherzlieb/taurigon.git
 cd taurigon
 
 # Frontend-Dependencies installieren

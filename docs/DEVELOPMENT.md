@@ -31,7 +31,7 @@ sudo dnf install webkit2gtk4.1-devel libappindicator-gtk3-devel librsvg2-devel
 ## Setup
 
 ```bash
-git clone https://github.com/<user>/taurigon.git
+git clone https://github.com/cherzlieb/taurigon.git
 cd taurigon
 bun install
 bun run tauri dev
