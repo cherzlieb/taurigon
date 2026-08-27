@@ -36,6 +36,9 @@ tokio = { version = "1", features = ["process", "rt-multi-thread", "macros", "io
 # rusqlite mit gebündeltem SQLite -> keine System-Abhängigkeit.
 rusqlite = { version = "0.31", features = ["bundled"] }
 
+# Pseudo-Terminal (PTY) – plattformübergreifend, auch Richtung Windows-Ziel.
+portable-pty = "0.8"
+
 # --- Logging ---
 log = "0.4"
 env_logger = "0.11"

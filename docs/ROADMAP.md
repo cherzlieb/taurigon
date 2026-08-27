@@ -7,14 +7,14 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 
 ---
 
-## M0 – Fundament ✅
+## Step 0 – Fundament ✅
 
 - ✅ Projekt-Scaffold (Tauri 2 + SvelteKit)
 - ✅ Systemerkennung (Engine, Distro, SELinux, Rootless)
 - ✅ Container-Engine-Abstraktion (Podman/Docker)
 - ✅ Gemeinsames Container-Netzwerk
 
-## M1 – MVP „Es läuft" 🚧
+## Step 1 – MVP „Es läuft" 🚧
 
 - ✅ Dienstverwaltung (MariaDB, PostgreSQL, Redis)
 - ✅ Status-Monitoring mit farbigen Indikatoren
@@ -24,9 +24,9 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 - ✅ Nginx-Reverse-Proxy für `.localhost`-Domains
 - ✅ PHP-FPM-Container (8.2 / 8.3 / 8.4, geteilt)
 - ✅ „Im Browser öffnen" für Projekte
-- ⬜ Integriertes Terminal (Basis)
+- ✅ Integriertes Terminal (Basis)
 
-## M2 – Komfort ⬜
+## Step 2 – Komfort ⬜
 
 - ⬜ vHost-Management (mehrere PHP-Versionen parallel)
 - ⬜ SSL-Zertifikate via mkcert (One-Click)
@@ -34,7 +34,7 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 - ⬜ Terminal-Ausbau (History, Quick-Commands, farbige Ausgabe)
 - ⬜ Erweiterte Einstellungen (Ports, Datenverzeichnis, Domain-Suffix)
 
-## M3 – Projekt-Templates ⬜
+## Step 3 – Projekt-Templates ⬜
 
 - ⬜ Laravel-Template
 - ⬜ WordPress-Template
@@ -42,7 +42,7 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 - ⬜ Image-/Service-Katalog (statt Systempakete)
 - ⬜ Autostart via `systemctl --user` + linger
 
-## M4 – Politur & Release ⬜
+## Step 4 – Politur & Release ⬜
 
 - ⬜ Onboarding-Wizard (fehlende Voraussetzungen erklären)
 - ⬜ Tray-Integration
@@ -50,7 +50,7 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 - ⬜ CI/CD, Packaging (AppImage / Flatpak)
 - ⬜ Open-Source-Vorbereitung (Lizenz, Contributing-Guide)
 
-## M5 – Optional / Zukunft ⬜
+## Step 5 – Optional / Zukunft ⬜
 
 - ⬜ Windows-Support (WSL2-Backend)
 - ⬜ Weitere Dienste (MongoDB, Elasticsearch, …)
@@ -60,9 +60,11 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 
 ## Offene Design-Fragen
 
-- **Pull-Progress:** Aktuell werden Images synchron gepullt (Ansatz A).
-  Später: Live-Progress via Tauri-Events (Ansatz B).
+- **Pull-Progress:** Aktuell werden Images synchron gepullt.
+  Später: Live-Progress via Tauri-Events.
 - **Lösch-UX:** Aktuell `confirm()`-Dialoge. Später: sauberes Modal mit
   Checkbox „Daten ebenfalls löschen".
 - **Netzwerk-Isolation:** Aktuell ein globales Netzwerk. Optional später
   Sub-Netzwerke pro Projekt.
+- **Terminal-Kontext:** Läuft auf dem Host. Optional später „im Container
+ausführen"-Modus für composer/php im Container-Kontext.

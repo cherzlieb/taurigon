@@ -13,6 +13,8 @@ use crate::services::{ServiceManager, ServiceStatusDto};
 use crate::state::AppState;
 use crate::system::inspector::SystemInfoDto;
 use crate::web::{catalog::PROXY_HTTP_PORT, WebManager};
+use crate::terminal::TerminalManager;
+use tauri::AppHandle;
 
 // ============================================================================
 //  System
@@ -293,4 +295,71 @@ pub fn cmd_open_url(url: String) -> Result<(), String> {
 #[tauri::command]
 pub fn cmd_proxy_port() -> u16 {
     PROXY_HTTP_PORT
+}
+
+// ============================================================================
+//  Terminal
+// ============================================================================
+
+/// Öffnet eine Terminal-Session im angegebenen Verzeichnis.
+///
+/// Die Shell wird aus `$SHELL` ermittelt (Fallback: `/bin/bash`).
+#[tauri::command]
+pub fn cmd_terminal_open(
+    app: AppHandle,
+    terminal: State<'_, TerminalManager>,
+    session_id: String,
+    cwd: String,
+) -> Result<(), String> {
+    let shell = resolve_shell();
+    log::info!("cmd_terminal_open: shell={shell}, cwd={cwd}");
+    terminal.open(app, session_id, &cwd, &shell)
+}
+
+/// Ermittelt eine nutzbare Shell.
+fn resolve_shell() -> String {
+    // 1. $SHELL, falls gesetzt und die Datei existiert.
+    if let Ok(shell) = std::env::var("SHELL") {
+        if !shell.is_empty() && std::path::Path::new(&shell).exists() {
+            return shell;
+        }
+    }
+    // 2. Gängige Fallbacks durchprobieren.
+    for candidate in ["/bin/bash", "/usr/bin/bash", "/bin/sh"] {
+        if std::path::Path::new(candidate).exists() {
+            return candidate.to_string();
+        }
+    }
+    // 3. Letzter Fallback.
+    "/bin/sh".to_string()
+}
+
+/// Sendet Eingabedaten an eine Terminal-Session.
+#[tauri::command]
+pub fn cmd_terminal_write(
+    terminal: State<'_, TerminalManager>,
+    session_id: String,
+    data: String,
+) -> Result<(), String> {
+    terminal.write(&session_id, &data)
+}
+
+/// Passt die Größe einer Terminal-Session an.
+#[tauri::command]
+pub fn cmd_terminal_resize(
+    terminal: State<'_, TerminalManager>,
+    session_id: String,
+    rows: u16,
+    cols: u16,
+) -> Result<(), String> {
+    terminal.resize(&session_id, rows, cols)
+}
+
+/// Schließt eine Terminal-Session.
+#[tauri::command]
+pub fn cmd_terminal_close(
+    terminal: State<'_, TerminalManager>,
+    session_id: String,
+) -> Result<(), String> {
+    terminal.close(&session_id)
 }

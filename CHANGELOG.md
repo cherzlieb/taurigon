@@ -7,10 +7,7 @@ Versionierung nach [SemVer](https://semver.org/lang/de/).
 
 ---
 
-## [Unreleased]
-
-### In Arbeit
-- Integriertes Terminal mit Projektkontext
+## [0.2.0] – 
 
 ### Hinzugefügt
 
@@ -20,6 +17,7 @@ Versionierung nach [SemVer](https://semver.org/lang/de/).
 - Projekte im Browser öffnen
 - Live-Reload bei Projekt-Änderungen (kein Neustart nötig)
 - Default-vHost (404 für unbekannte Domains)
+- Integriertes Terminal mit Projektkontext
 
 ---
 

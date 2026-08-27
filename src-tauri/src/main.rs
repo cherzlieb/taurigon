@@ -9,9 +9,11 @@ mod projects;
 mod services;
 mod state;
 mod system;
+mod terminal;
 mod web;
 
 use state::AppState;
+use terminal::TerminalManager;
 
 /// Anwendungs-Einstiegspunkt.
 fn main() {
@@ -24,6 +26,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(AppState::new())
+        .manage(TerminalManager::default())
         .invoke_handler(tauri::generate_handler![
             commands::cmd_inspect_system,
             commands::cmd_ensure_network,
@@ -43,6 +46,10 @@ fn main() {
             commands::cmd_reload_web,
             commands::cmd_open_url,
             commands::cmd_proxy_port,
+            commands::cmd_terminal_open,
+            commands::cmd_terminal_write,
+            commands::cmd_terminal_resize,
+            commands::cmd_terminal_close,
         ])
         .run(tauri::generate_context!())
         .expect("Fataler Fehler beim Starten von Taurigon");

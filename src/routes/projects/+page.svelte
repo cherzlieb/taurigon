@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { FolderGit2, Plus, Code2, Trash2, Globe, ChevronDown, ExternalLink, Power } from "lucide-svelte";
+  import { FolderGit2, Plus, Code2, Trash2, Globe, ChevronDown, ExternalLink, Power, TerminalSquare, X } from "lucide-svelte";
   import {
     projects,
     projectsLoading,
@@ -17,6 +17,25 @@
   } from "$lib/stores/projects";
   import { editorCommand } from "$lib/stores/settings";
   import Select from "$lib/components/Select.svelte";
+  import Terminal from "$lib/components/Terminal.svelte";
+
+  // Aktive Terminal-Session (null = kein Terminal offen).
+  let activeTerminal: { name: string; cwd: string; sessionId: string } | null =
+    null;
+
+  /** Öffnet ein Terminal für ein Projekt. */
+  function openTerminal(name: string, path: string) {
+    activeTerminal = {
+      name,
+      cwd: path,
+      sessionId: crypto.randomUUID(),
+    };
+  }
+
+  /** Schließt das Terminal-Panel. */
+  function closeTerminal() {
+    activeTerminal = null;
+  }
 
   // Formular-State
   let name = "";
@@ -270,6 +289,15 @@
               <Code2 size={15} /> Editor
             </button>
             <button
+              class="flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-2
+                     text-sm font-medium transition hover:bg-gray-300
+                     dark:bg-gray-800 dark:hover:bg-gray-700"
+              on:click={() => openTerminal(project.name, project.path)}
+              title="Terminal öffnen"
+            >
+              <TerminalSquare size={15} /> Terminal
+            </button>
+            <button
               class="flex items-center justify-center rounded-lg
                      bg-status-stopped/10 px-3 py-2 text-status-stopped
                      transition hover:bg-status-stopped/20"
@@ -281,6 +309,43 @@
           </div>
         </div>
       {/each}
+    </div>
+  {/if}
+  <!-- Terminal-Panel (unten fixiert) -->
+  {#if activeTerminal}
+    <div
+      class="fixed bottom-0 left-60 right-0 z-40 flex h-80 flex-col
+             border-t border-gray-800 bg-[#0a0a0a] shadow-2xl"
+    >
+      <!-- Panel-Kopf -->
+      <div
+        class="flex items-center justify-between border-b border-gray-800
+               px-4 py-2"
+      >
+        <div class="flex items-center gap-2 text-sm text-gray-300">
+          <TerminalSquare size={15} />
+          <span class="font-medium">Terminal</span>
+          <span class="text-gray-500">— {activeTerminal.name}</span>
+        </div>
+        <button
+          class="rounded p-1 text-gray-400 transition hover:bg-gray-800
+                 hover:text-gray-200"
+          on:click={closeTerminal}
+          title="Terminal schließen"
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      <!-- xterm (remountet bei Projektwechsel dank key) -->
+      <div class="flex-1 overflow-hidden p-2">
+        {#key activeTerminal.sessionId}
+          <Terminal
+            cwd={activeTerminal.cwd}
+            sessionId={activeTerminal.sessionId}
+          />
+        {/key}
+      </div>
     </div>
   {/if}
 </main>
