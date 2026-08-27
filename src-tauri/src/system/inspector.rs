@@ -70,26 +70,40 @@ pub struct DetectedEngine {
 /// **nicht** für funktionale Entscheidungen (siehe Modul-Doku).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Distro {
-    /// Arch Linux (und Derivate wie EndeavourOS, Manjaro).
-    Arch,
-    /// Fedora (und Derivate).
-    Fedora,
-    /// Debian/Ubuntu – aktuell nicht primär unterstützt.
-    Debian,
+    /// Arch Linux (optional mit konkretem Derivat-Namen, z. B. "cachyos")
+    Arch(Option<String>),
+    /// Fedora (optional mit konkretem Derivat-Namen)
+    Fedora(Option<String>),
+    /// Debian/Ubuntu (optional mit konkretem Derivat-Namen)
+    Debian(Option<String>),
     /// Unbekannte oder nicht zugeordnete Distribution.
-    /// Enthält die rohe `ID`-Zeichenkette aus os-release.
     Other(String),
 }
 
 impl fmt::Display for Distro {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Distro::Arch => write!(f, "Arch"),
-            Distro::Fedora => write!(f, "Fedora"),
-            Distro::Debian => write!(f, "Debian"),
+            Distro::Arch(specific) => format_base(f, "Arch Based", specific.as_deref(), "arch"),
+            Distro::Fedora(specific) => format_base(f, "Fedora Based", specific.as_deref(), "fedora"),
+            Distro::Debian(specific) => format_base(f, "Debian Based", specific.as_deref(), "debian"),
             Distro::Other(id) if id.is_empty() => write!(f, "Unknown"),
             Distro::Other(id) => write!(f, "{id}"),
         }
+    }
+}
+
+// Hilfsfunktion zur Vermeidung von Dopplungen wie "Arch Based - arch"
+fn format_base(
+    f: &mut fmt::Formatter<'_>,
+    base_label: &str,
+    specific: Option<&str>,
+    base_id: &str,
+) -> fmt::Result {
+    match specific {
+        Some(name) if !name.eq_ignore_ascii_case(base_id) => {
+            write!(f, "{base_label} - {name}")
+        }
+        _ => write!(f, "{base_label}"),
     }
 }
 
@@ -255,11 +269,41 @@ fn detect_distro() -> Distro {
         .map(|v| v.trim().trim_matches('"').to_lowercase())
         .unwrap_or_default();
 
-    match id.as_str() {
-        "arch" => Distro::Arch,
-        "fedora" => Distro::Fedora,
-        "debian" | "ubuntu" => Distro::Debian,
-        other => Distro::Other(other.to_string()),
+    // 1. Erst direkt über die ID prüfen
+    let distro = map_to_distro(&id, &id);
+    if !matches!(distro, Distro::Other(_)) {
+        return distro;
+    }
+
+    // 2. Falls unbekannt (z.B. "cachyos"), ID_LIKE durchgehen
+    let id_like = content
+        .lines()
+        .find_map(|line| line.strip_prefix("ID_LIKE="))
+        .map(|v| v.trim().trim_matches('"').to_lowercase())
+        .unwrap_or_default();
+
+    for like in id_like.split_whitespace() {
+        let distro = map_to_distro(like, &id);
+        if !matches!(distro, Distro::Other(_)) {
+            return distro;
+        }
+    }
+
+    Distro::Other(id)
+}
+
+fn map_to_distro(lookup_name: &str, actual_id: &str) -> Distro {
+    let specific = if actual_id.is_empty() {
+        None
+    } else {
+        Some(actual_id.to_string())
+    };
+
+    match lookup_name {
+        "arch" => Distro::Arch(specific),
+        "fedora" | "rhel" | "centos" => Distro::Fedora(specific),
+        "debian" | "ubuntu" => Distro::Debian(specific),
+        _ => Distro::Other(actual_id.to_string()),
     }
 }
 
