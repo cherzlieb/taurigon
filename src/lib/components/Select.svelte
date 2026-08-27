@@ -1,6 +1,5 @@
 <script lang="ts">
   import { ChevronDown, Check } from "lucide-svelte";
-  import { createEventDispatcher } from "svelte";
 
   /** Eine auswählbare Option. */
   type Option = { value: string; label: string };
@@ -11,8 +10,8 @@
   export let value: string = "";
   /** Optionale ID für Label-Verknüpfung. */
   export let id: string | undefined = undefined;
-
-  const dispatch = createEventDispatcher<{ change: string }>();
+  /** Optionaler Callback bei Auswahl-Änderung. */
+  export let onChange: ((value: string) => void) | undefined = undefined;
 
   let open = false;
   let container: HTMLDivElement;
@@ -25,7 +24,7 @@
   function select(v: string) {
     value = v;
     open = false;
-    dispatch("change", v);
+    onChange?.(v);
   }
 
   /** Schließt bei Klick außerhalb. */

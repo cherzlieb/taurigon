@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { theme } from "$lib/stores/theme";
   import {
     LayoutDashboard,
@@ -46,7 +46,7 @@
   <!-- Navigation -->
   <nav class="flex-1 space-y-1 px-3 py-2">
     {#each navItems as item (item.href)}
-      {@const active = isActive(item.href, $page.url.pathname)}
+      {@const active = isActive(item.href, page.url.pathname)}
       <a
         href={item.href}
         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
