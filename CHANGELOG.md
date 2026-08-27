@@ -10,8 +10,16 @@ Versionierung nach [SemVer](https://semver.org/lang/de/).
 ## [Unreleased]
 
 ### In Arbeit
-- Nginx-Reverse-Proxy für `.localhost`-Domains
-- PHP-FPM-Container (geteilt pro Version)
+- Integriertes Terminal mit Projektkontext
+
+### Hinzugefügt
+
+- Nginx-Reverse-Proxy für `.localhost`-Domains (Port 8080)
+- PHP-FPM-Container pro Version (8.2/8.3/8.4, geteilt)
+- vHost-Generator (PHP & statisch)
+- Projekte im Browser öffnen
+- Live-Reload bei Projekt-Änderungen (kein Neustart nötig)
+- Default-vHost (404 für unbekannte Domains)
 
 ---
 

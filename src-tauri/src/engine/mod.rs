@@ -90,6 +90,9 @@ pub struct VolumeMount {
     /// Ob dieses Volume SELinux-Relabeling (`:Z`) erhalten soll, falls
     /// SELinux enforcing ist. Für DB-Datenverzeichnisse: `true`.
     pub selinux_relabel: bool,
+    /// Ob das Volume von mehreren Containern geteilt wird.
+    /// `true`  → `:z` (shared), `false` → `:Z` (private).
+    pub shared: bool,
 }
 
 /// Neustart-Verhalten eines Containers.
@@ -171,7 +174,9 @@ impl ContainerSpec {
         self
     }
 
-    /// Fügt ein Volume-Mount hinzu (Builder-Stil).
+    /// Fügt ein privates Volume-Mount hinzu (Builder-Stil).
+    ///
+    /// Bei aktivem SELinux erhält es `:Z` (nur für diesen Container).
     pub fn with_volume(
         mut self,
         source: impl Into<String>,
@@ -182,6 +187,25 @@ impl ContainerSpec {
             source: source.into(),
             target: target.into(),
             selinux_relabel,
+            shared: false,
+        });
+        self
+    }
+
+    /// Fügt ein geteiltes Volume-Mount hinzu (Builder-Stil).
+    ///
+    /// Bei aktivem SELinux erhält es `:z` (mehrere Container dürfen zugreifen).
+    /// Nötig für Verzeichnisse, die z. B. Proxy **und** PHP-FPM mounten.
+    pub fn with_shared_volume(
+        mut self,
+        source: impl Into<String>,
+        target: impl Into<String>,
+    ) -> Self {
+        self.volumes.push(VolumeMount {
+            source: source.into(),
+            target: target.into(),
+            selinux_relabel: true,
+            shared: true,
         });
         self
     }
@@ -278,6 +302,13 @@ pub trait ContainerEngine: Send + Sync {
 
     /// Lädt ein Image aus der Registry.
     async fn pull_image(&self, image: &str) -> EngineResult<()>;
+
+    /// Führt einen Befehl **in** einem laufenden Container aus.
+    ///
+    /// # Arguments
+    /// * `name` - Container-Name.
+    /// * `cmd`  - Kommando + Argumente (z. B. `["nginx", "-s", "reload"]`).
+    async fn exec(&self, name: &str, cmd: &[&str]) -> EngineResult<String>;
 }
 
 // ============================================================================
@@ -402,9 +433,13 @@ pub(crate) fn build_run_args(spec: &ContainerSpec, selinux_enforcing: bool) -> V
     }
 
     for v in &spec.volumes {
-        // SELinux-Relabel-Suffix nur, wenn nötig und gewünscht.
+        // SELinux-Relabel-Suffix: :z (shared) oder :Z (private).
         let suffix = if selinux_enforcing && v.selinux_relabel {
-            ":Z"
+            if v.shared {
+                ":z"
+            } else {
+                ":Z"
+            }
         } else {
             ""
         };
@@ -526,4 +561,17 @@ pub(crate) async fn cli_image_exists(binary: &str, image: &str) -> EngineResult<
     .await
     .is_ok();
     Ok(ok)
+}
+
+/// Führt einen Befehl in einem laufenden Container aus (geteilte Impl).
+pub(crate) async fn cli_exec(
+    binary: &str,
+    name: &str,
+    cmd: &[&str],
+) -> EngineResult<String> {
+    let mut args = vec!["exec".to_string(), name.to_string()];
+    for c in cmd {
+        args.push((*c).to_string());
+    }
+    run_cli(binary, args).await
 }

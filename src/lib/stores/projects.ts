@@ -30,6 +30,7 @@ export async function loadProjects() {
   }
 }
 
+
 /** Lädt nur beim ersten Mal, danach Hintergrund-Refresh. */
 export async function ensureProjects() {
   if (get(projects).length === 0) {
@@ -39,7 +40,7 @@ export async function ensureProjects() {
   }
 }
 
-/** Legt ein Projekt an und aktualisiert die Liste. */
+/** Legt ein Projekt an, aktualisiert die Liste und lädt vHosts neu. */
 export async function createProject(
   name: string,
   projectType: string,
@@ -51,6 +52,12 @@ export async function createProject(
     phpVersion,
   });
   await loadProjects();
+  // Läuft der Webserver, neue vHost-Config sofort aktiv machen.
+  if (get(webRunning)) {
+    await invoke("cmd_reload_web").catch((e) =>
+      console.error("Reload nach Anlegen fehlgeschlagen:", e),
+    );
+  }
 }
 
 /** Löscht ein Projekt (mit Rückfrage zu den Dateien). */
@@ -74,5 +81,59 @@ export async function openInEditor(path: string, editorCommand: string) {
     await invoke("cmd_open_in_editor", { path, editorCommand });
   } catch (e) {
     alert(`Editor konnte nicht geöffnet werden:\n${e}`);
+  }
+}
+
+/** Läuft der Web-Proxy? */
+export const webRunning = writable(false);
+/** Web-Aktion in Arbeit? */
+export const webBusy = writable(false);
+
+/** Fragt den Web-Status ab. */
+export async function loadWebStatus() {
+  try {
+    webRunning.set(await invoke<boolean>("cmd_web_status"));
+  } catch (e) {
+    console.error("Web-Status fehlgeschlagen:", e);
+  }
+}
+
+/** Startet die Web-Umgebung. */
+export async function startWeb() {
+  webBusy.set(true);
+  try {
+    await invoke("cmd_start_web");
+    await loadWebStatus();
+  } catch (e) {
+    alert(`Web-Start fehlgeschlagen:\n${e}`);
+  } finally {
+    webBusy.set(false);
+  }
+}
+
+/** Stoppt die Web-Umgebung. */
+export async function stopWeb() {
+  webBusy.set(true);
+  try {
+    await invoke("cmd_stop_web");
+    await loadWebStatus();
+  } catch (e) {
+    alert(`Web-Stopp fehlgeschlagen:\n${e}`);
+  } finally {
+    webBusy.set(false);
+  }
+}
+
+/** Öffnet ein Projekt im Browser (startet Web bei Bedarf). */
+export async function openProject(domain: string) {
+  try {
+    // Sicherstellen, dass der Web-Stack läuft.
+    if (!get(webRunning)) {
+      await startWeb();
+    }
+    const port = await invoke<number>("cmd_proxy_port");
+    await invoke("cmd_open_url", { url: `http://${domain}:${port}` });
+  } catch (e) {
+    alert(`Projekt konnte nicht geöffnet werden:\n${e}`);
   }
 }

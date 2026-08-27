@@ -21,9 +21,9 @@ Geplante Meilensteine und Features. Abgeschlossenes wandert ins
 - ✅ Datenpersistenz über Volumes
 - ✅ Projektverwaltung (anlegen, auflisten, löschen)
 - ✅ Editor-Integration (Projekt im Editor öffnen)
-- 🚧 Nginx-Reverse-Proxy für `.localhost`-Domains
-- 🚧 PHP-FPM-Container (8.2 / 8.3 / 8.4, geteilt)
-- ⬜ „Im Browser öffnen" für Projekte
+- ✅ Nginx-Reverse-Proxy für `.localhost`-Domains
+- ✅ PHP-FPM-Container (8.2 / 8.3 / 8.4, geteilt)
+- ✅ „Im Browser öffnen" für Projekte
 - ⬜ Integriertes Terminal (Basis)
 
 ## M2 – Komfort ⬜

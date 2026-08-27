@@ -10,7 +10,7 @@ use async_trait::async_trait;
 
 use super::{
     cli_container_status, cli_ensure_network, cli_image_exists, cli_list_containers,
-    cli_run_container, run_cli_unit, ContainerEngine, ContainerSpec, ContainerStatus,
+    cli_run_container, cli_exec, run_cli_unit, ContainerEngine, ContainerSpec, ContainerStatus,
     EngineResult,
 };
 use crate::system::inspector::ContainerEngineKind;
@@ -83,5 +83,9 @@ impl ContainerEngine for PodmanEngine {
 
     async fn pull_image(&self, image: &str) -> EngineResult<()> {
         run_cli_unit(Self::BINARY, vec!["pull".into(), image.into()]).await
+    }
+
+    async fn exec(&self, name: &str, cmd: &[&str]) -> EngineResult<String> {
+        super::cli_exec(Self::BINARY, name, cmd).await
     }
 }

@@ -12,6 +12,7 @@ use crate::services::catalog::{ServiceInfoDto, ServiceKind};
 use crate::services::{ServiceManager, ServiceStatusDto};
 use crate::state::AppState;
 use crate::system::inspector::SystemInfoDto;
+use crate::web::{catalog::PROXY_HTTP_PORT, WebManager};
 
 // ============================================================================
 //  System
@@ -150,16 +151,39 @@ pub fn cmd_create_project(
     manager.create(&name, &project_type, php_version)
 }
 
-/// Löscht ein Projekt (optional inkl. Dateien).
+/// Löscht ein Projekt (optional inkl. Dateien) und räumt den vHost auf.
 #[tauri::command]
-pub fn cmd_delete_project(
+pub async fn cmd_delete_project(
     state: State<'_, AppState>,
     id: i64,
     delete_files: bool,
 ) -> Result<(), String> {
-    let conn = state.db();
-    let manager = ProjectManager::new(&conn);
-    manager.delete(id, delete_files)
+    // Namen für vHost-Cleanup ermitteln, dann löschen (synchroner DB-Block).
+    let name = {
+        let conn = state.db();
+        let manager = ProjectManager::new(&conn);
+        let projects = manager.list()?;
+        let name = projects
+            .iter()
+            .find(|p| p.id == id)
+            .map(|p| p.name.clone());
+        manager.delete(id, delete_files)?;
+        name
+    };
+
+    // vHost entfernen + Reload (falls Web läuft).
+    if let Some(name) = name {
+        let remaining = {
+            let conn = state.db();
+            ProjectManager::new(&conn).list()?
+        };
+        let info = state.system_info().await;
+        let engine = create_engine(&info).map_err(|e| e.to_string())?;
+        let web = WebManager::new(engine.as_ref());
+        let _ = web.remove_vhost(&name, &remaining).await;
+    }
+
+    Ok(())
 }
 
 // ============================================================================
@@ -203,4 +227,70 @@ pub fn cmd_open_in_editor(path: String, editor_command: String) -> Result<(), St
         .map_err(|e| format!("Editor konnte nicht gestartet werden: {e}"))?;
 
     Ok(())
+}
+
+// ============================================================================
+//  Web-Layer (Proxy + PHP-FPM)
+// ============================================================================
+
+/// Startet die Web-Umgebung (Proxy + benötigte PHP-FPM + vHosts).
+#[tauri::command]
+pub async fn cmd_start_web(state: State<'_, AppState>) -> Result<(), String> {
+    // Projekte holen (kurzer, synchroner DB-Zugriff).
+    let projects = {
+        let conn = state.db();
+        ProjectManager::new(&conn).list()?
+    };
+
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let web = WebManager::new(engine.as_ref());
+    web.start(&projects).await.map_err(|e| e.to_string())
+}
+
+/// Stoppt die Web-Umgebung (Proxy + alle PHP-FPM).
+#[tauri::command]
+pub async fn cmd_stop_web(state: State<'_, AppState>) -> Result<(), String> {
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let web = WebManager::new(engine.as_ref());
+    web.stop().await.map_err(|e| e.to_string())
+}
+
+/// Liefert, ob der Web-Proxy läuft.
+#[tauri::command]
+pub async fn cmd_web_status(state: State<'_, AppState>) -> Result<bool, String> {
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let web = WebManager::new(engine.as_ref());
+    web.is_running().await.map_err(|e| e.to_string())
+}
+
+/// Lädt die vHost-Konfiguration neu (nach Projekt-Änderungen).
+#[tauri::command]
+pub async fn cmd_reload_web(state: State<'_, AppState>) -> Result<(), String> {
+    let projects = {
+        let conn = state.db();
+        ProjectManager::new(&conn).list()?
+    };
+    let info = state.system_info().await;
+    let engine = create_engine(&info).map_err(|e| e.to_string())?;
+    let web = WebManager::new(engine.as_ref());
+    web.reload(&projects).await.map_err(|e| e.to_string())
+}
+
+/// Öffnet eine URL im Standardbrowser (via `xdg-open`).
+#[tauri::command]
+pub fn cmd_open_url(url: String) -> Result<(), String> {
+    std::process::Command::new("xdg-open")
+        .arg(&url)
+        .spawn()
+        .map_err(|e| format!("Browser konnte nicht geöffnet werden: {e}"))?;
+    Ok(())
+}
+
+/// Liefert den Proxy-HTTP-Port (für die URL-Konstruktion im Frontend).
+#[tauri::command]
+pub fn cmd_proxy_port() -> u16 {
+    PROXY_HTTP_PORT
 }

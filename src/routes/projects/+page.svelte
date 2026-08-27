@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { FolderGit2, Plus, Code2, Trash2, Globe, ChevronDown } from "lucide-svelte";
+  import { FolderGit2, Plus, Code2, Trash2, Globe, ChevronDown, ExternalLink, Power } from "lucide-svelte";
   import {
     projects,
     projectsLoading,
@@ -8,6 +8,12 @@
     createProject,
     deleteProject,
     openInEditor,
+    webRunning,
+    webBusy,
+    loadWebStatus,
+    startWeb,
+    stopWeb,
+    openProject,
   } from "$lib/stores/projects";
   import { editorCommand } from "$lib/stores/settings";
   import Select from "$lib/components/Select.svelte";
@@ -52,7 +58,10 @@
   ];
   const phpVersionOptions = phpVersions.map((v) => ({ value: v, label: v }));
 
-  onMount(ensureProjects);
+  onMount(async () => {
+    await ensureProjects();
+    await loadWebStatus();
+  });
 </script>
 
 <main class="mx-auto max-w-4xl px-8 py-8">
@@ -63,7 +72,48 @@
     </p>
   </header>
 
-<!-- Neues Projekt anlegen -->
+  <!-- Web-Server-Steuerung -->
+  <section
+    class="mb-6 flex items-center justify-between rounded-xl border
+           border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+  >
+    <div class="flex items-center gap-3">
+      <span
+        class="h-2.5 w-2.5 rounded-full"
+        class:bg-status-running={$webRunning}
+        class:bg-status-stopped={!$webRunning}
+      ></span>
+      <div>
+        <p class="text-sm font-medium">
+          Webserver {$webRunning ? "läuft" : "gestoppt"}
+        </p>
+        <p class="text-xs text-gray-500">Nginx-Proxy auf Port 8080</p>
+      </div>
+    </div>
+    {#if $webRunning}
+      <button
+        class="flex items-center gap-2 rounded-lg bg-status-stopped/10 px-3 py-2
+               text-sm font-medium text-status-stopped transition
+               hover:bg-status-stopped/20 disabled:opacity-50"
+        on:click={stopWeb}
+        disabled={$webBusy}
+      >
+        <Power size={15} /> Stoppen
+      </button>
+    {:else}
+      <button
+        class="flex items-center gap-2 rounded-lg bg-status-running/10 px-3 py-2
+               text-sm font-medium text-status-running transition
+               hover:bg-status-running/20 disabled:opacity-50"
+        on:click={startWeb}
+        disabled={$webBusy}
+      >
+        <Power size={15} /> {$webBusy ? "Startet …" : "Starten"}
+      </button>
+    {/if}
+  </section>
+
+  <!-- Neues Projekt anlegen -->
   <section
     class="mb-8 rounded-xl border border-gray-200 bg-white p-5
            dark:border-gray-800 dark:bg-gray-900"
@@ -201,6 +251,15 @@
           </div>
 
           <div class="flex gap-2">
+            <button
+              class="flex items-center gap-1.5 rounded-lg bg-accent-600 px-3 py-2
+                     text-sm font-medium text-white transition
+                     hover:bg-accent-500"
+              on:click={() => openProject(project.domain)}
+              title="Im Browser öffnen"
+            >
+              <ExternalLink size={15} /> Öffnen
+            </button>
             <button
               class="flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-2
                      text-sm font-medium transition hover:bg-gray-300

@@ -9,6 +9,7 @@ mod projects;
 mod services;
 mod state;
 mod system;
+mod web;
 
 use state::AppState;
 
@@ -36,6 +37,12 @@ fn main() {
             commands::cmd_create_project,
             commands::cmd_delete_project,
             commands::cmd_open_in_editor,
+            commands::cmd_start_web,
+            commands::cmd_stop_web,
+            commands::cmd_web_status,
+            commands::cmd_reload_web,
+            commands::cmd_open_url,
+            commands::cmd_proxy_port,
         ])
         .run(tauri::generate_context!())
         .expect("Fataler Fehler beim Starten von Taurigon");
