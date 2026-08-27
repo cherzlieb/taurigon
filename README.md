@@ -1,8 +1,6 @@
 <div align="center">
 
-# 🐂 Taurigon
-
-**Rootless Web-Development-Umgebung für Linux**
+<img src="images/app-logo.jpeg" alt="Taurigon Logo" width="360">
 
 Eine moderne GUI zur Verwaltung containerbasierter Entwicklungsumgebungen –
 inspiriert von Laragon, gebaut für Linux, ohne Root-Rechte.
