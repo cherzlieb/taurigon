@@ -18,6 +18,10 @@ use terminal::TerminalManager;
 
 /// Anwendungs-Einstiegspunkt.
 fn main() {
+    // GTK Dark Mode für Linux erzwingen, falls noch nicht gesetzt
+    #[cfg(target_os = "linux")]
+    std::env::set_var("GTK_THEME", "Adwaita:dark");
+
     env_logger::Builder::from_env(
         env_logger::Env::default().default_filter_or("info"),
     )
