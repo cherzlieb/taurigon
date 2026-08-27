@@ -9,7 +9,7 @@
     Settings,
     Sun,
     Moon,
-  } from "lucide-svelte";
+  } from "@lucide/svelte";
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },

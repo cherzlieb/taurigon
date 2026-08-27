@@ -5,10 +5,10 @@
     ShieldCheck,
     ShieldAlert,
     HardDrive,
-    CheckCircle2,
-    XCircle,
+    CircleCheck,
+    CircleX,
     RefreshCw,
-  } from "lucide-svelte";
+  } from "@lucide/svelte";
   import {
     systemInfo,
     systemLoading,
@@ -52,7 +52,7 @@
              p-4 text-status-stopped"
     >
       <div class="flex items-center gap-2 font-semibold">
-        <XCircle size={20} />
+        <CircleX size={20} />
         Fehler bei der Systemanalyse
       </div>
       <p class="mt-1 text-sm">{$systemError}</p>
@@ -66,7 +66,7 @@
         : 'border-status-stopped/30 bg-status-stopped/10'}"
     >
       {#if $systemInfo.is_ready}
-        <CheckCircle2 size={28} class="text-status-running" />
+        <CircleCheck size={28} class="text-status-running" />
         <div>
           <p class="font-semibold text-status-running">System bereit</p>
           <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -74,7 +74,7 @@
           </p>
         </div>
       {:else}
-        <XCircle size={28} class="text-status-stopped" />
+        <CircleX size={28} class="text-status-stopped" />
         <div>
           <p class="font-semibold text-status-stopped">
             Keine Container-Engine gefunden

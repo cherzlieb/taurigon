@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { FolderGit2, Plus, Code2, Trash2, Globe, ChevronDown, ExternalLink, Power, TerminalSquare, X } from "lucide-svelte";
+  import { FolderGit2, Plus, CodeXml, Trash2, Globe, ChevronDown, ExternalLink, Power, SquareTerminal, X } from "@lucide/svelte";
   import {
     projects,
     projectsLoading,
@@ -286,7 +286,7 @@
               on:click={() => openInEditor(project.path, $editorCommand)}
               title="Im Editor öffnen"
             >
-              <Code2 size={15} /> Editor
+              <CodeXml size={15} /> Editor
             </button>
             <button
               class="flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-2
@@ -295,7 +295,7 @@
               on:click={() => openTerminal(project.name, project.path)}
               title="Terminal öffnen"
             >
-              <TerminalSquare size={15} /> Terminal
+              <SquareTerminal size={15} /> Terminal
             </button>
             <button
               class="flex items-center justify-center rounded-lg
@@ -323,7 +323,7 @@
                px-4 py-2"
       >
         <div class="flex items-center gap-2 text-sm text-gray-300">
-          <TerminalSquare size={15} />
+          <SquareTerminal size={15} />
           <span class="font-medium">Terminal</span>
           <span class="text-gray-500">— {activeTerminal.name}</span>
         </div>

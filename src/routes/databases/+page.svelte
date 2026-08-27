@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Database, Plus, Trash2, RotateCw, UserPlus, X } from "lucide-svelte";
+  import { Database, Plus, Trash2, RotateCw, UserPlus, X } from "@lucide/svelte";
   import Select from "$lib/components/Select.svelte";
   import {
     databases,

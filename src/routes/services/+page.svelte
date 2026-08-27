@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Play, Square, RotateCw, Trash2 } from "lucide-svelte";
+  import { Play, Square, RotateCw, Trash2 } from "@lucide/svelte";
   import {
     services,
     statuses,

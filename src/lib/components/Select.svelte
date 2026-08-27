@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronDown, Check } from "lucide-svelte";
+  import { ChevronDown, Check } from "@lucide/svelte";
 
   /** Eine auswählbare Option. */
   type Option = { value: string; label: string };

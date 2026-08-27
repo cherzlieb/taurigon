@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Check, Sun, Moon, Code2 } from "lucide-svelte";
+  import { Check, Sun, Moon, CodeXml } from "@lucide/svelte";
   import { theme } from "$lib/stores/theme";
   import { accent, ACCENT_COLORS } from "$lib/stores/accent";
   import { editorCommand } from "$lib/stores/settings";
@@ -100,7 +100,7 @@
             dark:border-gray-800 dark:bg-gray-900"
     >
       <label class="mb-2 flex items-center gap-2 text-sm font-medium">
-        <Code2 size={16} /> Editor-Befehl
+        <CodeXml size={16} /> Editor-Befehl
       </label>
       <input
         type="text"
