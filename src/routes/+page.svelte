@@ -102,7 +102,7 @@
         {#if $systemInfo.engine_kind}
           <p class="text-lg font-semibold capitalize">
             {$systemInfo.engine_kind}
-            <span class="text-sm font-normal text-gray-500">
+            <span class="text-sm font-normal text-gray-500 lowercase">
               v{$systemInfo.engine_version}
             </span>
           </p>
@@ -148,7 +148,7 @@
           <HardDrive size={18} />
           <span class="text-sm font-medium">Distribution</span>
         </div>
-        <p class="text-lg font-semibold">{$systemInfo.distro}</p>
+        <p class="text-lg font-semibold capitalize">{$systemInfo.distro}</p>
       </div>
 
       <!-- SELinux -->
