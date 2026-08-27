@@ -1,0 +1,55 @@
+[package]
+name = "taurigon"
+version = "0.1.0"
+description = "Rootless Web-Development Environment Manager für Linux"
+authors = ["Christoph Herzlieb"]
+edition = "2021"
+# Minimale Rust-Version, die für dieses Projekt garantiert funktioniert.
+rust-version = "1.77"
+
+# Wir bauen genau ein Binary (die App selbst).
+[[bin]]
+name = "taurigon"
+path = "src/main.rs"
+
+# Build-Dependencies: nur zur Compile-Zeit nötig (Tauri-Codegen).
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# --- Tauri Core ---
+tauri = { version = "2", features = [] }
+
+# --- Serialisierung (Rust <-> JSON fürs Frontend) ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# --- Fehlerbehandlung ---
+# thiserror: bequeme, typisierte Fehler-Enums für unsere Module.
+thiserror = "1"
+
+# --- Async Runtime + Prozess-Handling ---
+# Wir rufen podman/docker/mkcert als Subprozesse auf.
+tokio = { version = "1", features = ["process", "rt-multi-thread", "macros", "io-util"] }
+
+# --- Datenbank (Projekt-Metadaten) ---
+# rusqlite mit gebündeltem SQLite -> keine System-Abhängigkeit.
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# --- Logging ---
+log = "0.4"
+env_logger = "0.11"
+
+# Ermöglicht async fn in Traits mit dyn-Dispatch (Box<dyn ContainerEngine>).
+async-trait = "0.1"
+
+# XDG-konforme Verzeichnisse (~/.local/share etc.) plattformübergreifend.
+dirs = "6"
+
+# Release-Profil: kleine, schnelle Binary (wichtig für dein Performance-Ziel).
+[profile.release]
+opt-level = "s"     # optimiere auf Größe (s = size)
+lto = true          # Link-Time-Optimization -> kleinere, schnellere Binary
+codegen-units = 1   # bessere Optimierung (langsamerer Build)
+panic = "abort"     # kein Unwinding -> kleinere Binary
+strip = true        # Debug-Symbole entfernen

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Theme + Akzentfarbe früh setzen, bevor die App rendert. -->
+    <script>
+      (function () {
+        try {
+          // Theme
+          var t = localStorage.getItem("theme");
+          if (t === "dark" || !t) {
+            document.documentElement.classList.add("dark");
+          }
+
+          // Akzentfarbe
+          var colors = {
+            blue:   ["59 130 246", "37 99 235"],
+            indigo: ["99 102 241", "79 70 229"],
+            purple: ["168 85 247", "147 51 234"],
+            pink:   ["236 72 153", "219 39 119"],
+            red:    ["239 68 68", "220 38 38"],
+            orange: ["249 115 22", "234 88 12"],
+            amber:  ["245 158 11", "217 119 6"],
+            green:  ["34 197 94", "22 163 74"],
+            teal:   ["20 184 166", "13 148 136"],
+            cyan:   ["6 182 212", "8 145 178"],
+          };
+          var a = localStorage.getItem("accent") || "blue";
+          var c = colors[a] || colors.blue;
+          var root = document.documentElement;
+          root.style.setProperty("--accent-500", c[0]);
+          root.style.setProperty("--accent-600", c[1]);
+        } catch (e) {}
+      })();
+    </script>
+
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

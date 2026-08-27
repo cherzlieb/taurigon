@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Globale Basis: sanfte Übergänge, System-Schrift, kein Text-Highlight beim
+   Klicken auf UI-Buttons (Desktop-App-Feeling). */
+@layer base {
+  html {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --accent-500: 59 130 246;
+    --accent-600: 37 99 235;
+  }
+
+  /* Teilt der WebView mit, native Controls (Select-Popups, Scrollbars,
+     Date-Picker etc.) passend zum Theme zu rendern. Fixt die weiße
+     aufgeklappte Select-Liste unter WebKit/GTK. */
+  html.dark {
+    color-scheme: dark;
+  }
+  html:not(.dark) {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+    @apply antialiased;
+  }
+
+  button {
+    @apply select-none;
+  }
+}
