@@ -31,12 +31,11 @@
 >
   <!-- Logo / Titel -->
   <div class="flex items-center gap-2 px-5 py-5">
-    <div
-      class="flex h-9 w-9 items-center justify-center rounded-lg
-             bg-accent-600 text-white font-bold"
-    >
-      T
-    </div>
+    <img
+      src="/taurigon-icon.png"
+      alt="Taurigon"
+      class="h-9 w-9 rounded-lg object-contain"
+    />
     <div>
       <p class="font-bold leading-tight">Taurigon</p>
       <p class="text-xs text-gray-500">Dev Manager</p>
