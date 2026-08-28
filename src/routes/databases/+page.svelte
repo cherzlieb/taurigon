@@ -250,9 +250,11 @@
     <div
       class="w-full max-w-md rounded-xl border border-gray-200 bg-white p-5
              dark:border-gray-800 dark:bg-gray-900"
-      on:click|stopPropagation
       role="dialog"
+      aria-modal="true"
       tabindex="-1"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
     >
       <div class="mb-4 flex items-center justify-between">
         <h3 class="font-semibold">Benutzer für „{userDialog.database}"</h3>

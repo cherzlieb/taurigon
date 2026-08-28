@@ -1,13 +1,5 @@
 {
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-  "exclude": [
-    "node_modules",
-    ".svelte-kit",
-    "build",
-    "dist",
-    "public/build",
-    "coverage"
-  ],
+  "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
